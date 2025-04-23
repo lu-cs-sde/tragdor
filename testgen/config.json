@@ -1,0 +1,1 @@
+{"tragdor":{"filter":{"exclude":["*.toString"]},"discoveryEntryPoints":[{"predicate":"this<:ASTNode","property":"*"}],"search_budget_sec":3,"tool":{"args":[],"jar":"example-compiler/compiler.jar"},"search_algorithm":"random_order"}}

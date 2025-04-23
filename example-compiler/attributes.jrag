@@ -1,0 +1,146 @@
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+// Basic attributes, used by other aspects.
+aspect NormalAttributes {
+    inh Program ASTNode.program();
+    eq Program.getChild().program() = this;
+    syn Program Program.program() = this;
+
+    syn int Expr.v();
+    eq Add.v() = getLeft().v() + getRight().v();
+    eq Num.v() = getValue();
+}
+
+// Example of a correctly implemented "label" generation attribute
+// Inside `IssueType_MutableField` are two examples of incorrectly generating labels.
+aspect IndexMappingLabel {
+  syn String Num.label1() = "L" + program().indexMapping().get(this);
+  syn Map<Num, Integer> Program.indexMapping() {
+      HashMap<Num, Integer> map = new HashMap<>();
+      buildIndexMapping(map, 1);
+      return map;
+  }
+  protected int ASTNode.buildIndexMapping(Map<Num, Integer> map, int counter) {
+      for (ASTNode child: astChildren()) {
+          counter = child.buildIndexMapping(map, counter);
+      }
+      return counter;
+  }
+  protected int Num.buildIndexMapping(Map<Num, Integer> map, int counter) {
+      map.put(this, counter);
+      return counter+1;
+  }
+}
+
+// Two examples of the issue type "Mutable Field".
+aspect IssueType_MutableField {
+  private static int Num.labelCounter = 1;
+  syn String Num.label2() = "L" + Num.labelCounter++; // <-- Error
+
+  public class Counter {
+    private int counter = 0;
+    public int nextCounter() {
+        return counter++; // <-- Error
+    }
+  }
+  syn Counter Program.counter() = new Counter();
+  syn String Num.label3() = "L" + program().counter().nextCounter();
+}
+
+// An example of the issue type "Mutating Attribute Value".
+aspect IssueType_MutatingAttributeValue {
+  syn Collection<Integer> Num.someCollection() {
+    Collection<Integer> list = new ArrayList<Integer>();
+    list.add(getValue());
+    return list;
+  }
+  syn Collection<Integer> Num.modifyingCollection() {
+      Collection<Integer> c = someCollection();
+      c.add(getValue()+1); // <-- Error
+      return c;
+  }
+}
+
+// An example of the issue type "Set Order"
+aspect IssueType_SetOrder {
+  coll Set<Num> Program.allNumbers() [new HashSet<>()] with add root Program;
+  Num contributes this to Program.allNumbers() for program();
+  syn List<Integer> Program.literalValues() {
+    List<Integer> l = new ArrayList<>();
+    for (Num n : allNumbers()) { // <-- Error
+      l.add(n.v());
+    }
+    return l;
+  }
+}
+
+// An example of the issue type "Fresh Attribute".
+aspect IssueType_FreshAttribute {
+  syn Expr Program.literal(int n) = new Num(n); // <-- Error
+  syn nta Expr Program.zero() = literal(0);
+}
+
+// An example of the issue type "HOA Theft".
+aspect IssueType_HOATheft {
+  syn nta Num Expr.valueAsNum() = new Num(v());
+  syn nta Add Expr.valueAsAdd() = new Add(
+    valueAsNum(), // <-- Error
+    new Num(0)
+  );
+}
+
+// An example of the issue type "Exception"
+aspect IssueType_Exception {
+  inh Add Expr.enclosingAdd();
+  eq Program.getChild().enclosingAdd() = null;
+  eq Add.getChild().enclosingAdd() = this;
+  syn boolean Expr.isLeftOfAdd() = this == enclosingAdd().getLeft(); // <-- Error
+}
+
+// Printing code used by main()
+// Among other things, this will print labels that look 100% correct, possibly making you
+// believe that they are correctly implemented. However, as Tragdor reveals, label2() and
+// label3() are actually incorrectly created.
+aspect PrintAST {
+    public void ASTNode.printAST() {
+        printAST("");
+    }
+    protected void ASTNode.printAST(String indent) {
+        System.out.println(indent + getClass().getSimpleName() + "  " + getNodeInfo());
+        for (ASTNode child: astChildren()) {
+            child.printAST(indent + "  ");
+        }
+    }
+    public String ASTNode.getNodeInfo() { return ""; }
+    public String Add.getNodeInfo() { return "v=" + v(); }
+    public String Num.getNodeInfo() {
+        return "Value=" + getValue() + ", v=" + v()
+            + ", label1=" + label1() + ", label2=" + label2()
+            + ", label3=" + label3();
+    }
+}
+
+// Needed by Tragdor to traverse the AST and build the dependency graph
+aspect TragdorGlue {
+    public int ASTNode.getStart() {
+        return 0;
+    }
+    public int ASTNode.getEnd() {
+        return 0;
+    }
+
+    public void Program.cpr_setTraceReceiver(final java.util.function.Consumer<Object[]> recv) {
+        trace().setReceiver(new ASTState.Trace.Receiver() {
+            @Override
+            public void accept(ASTState.Trace.Event event, ASTNode node, String attribute, Object params, Object value) {
+                recv.accept(new Object[] { event, node, attribute, params, value });
+            }
+        });
+    }
+}

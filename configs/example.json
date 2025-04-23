@@ -1,0 +1,18 @@
+{
+  "tragdor": {
+    "tool": {
+      "jar":  "example-compiler/compiler.jar",
+      "args": []
+    },
+    "discoveryEntryPoints": [
+      { "predicate": "this<:ASTNode", "property": "*" }
+    ],
+    "filter": {
+      "exclude": [
+        "*.toString"
+      ]
+    },
+    "search_budget_sec": 3,
+    "search_algorithm": "random_order"
+  }
+}

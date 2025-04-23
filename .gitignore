@@ -1,0 +1,4 @@
+build_tmp
+*.class
+.DS_Store
+tragdor.jar

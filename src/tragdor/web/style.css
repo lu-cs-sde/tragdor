@@ -1,0 +1,129 @@
+
+.row {
+  border: 1px solid black;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  background-color: #eee;
+  margin-bottom: 0.25rem;
+}
+.search-config {
+  background-color: #eee;
+}
+/* .roo:first */
+
+.rowWrapper[data-search="1"] {
+  order: 1;
+}
+.rowWrapper[data-search="2"] {
+  order: 2;
+}
+.rowWrapper[data-divider="1"] {
+  margin-top: 1rem;
+  border-top: 1px dashed black;;
+  border-spacing: 1rem;
+  padding-top: 1rem;
+}
+
+.row > .title {
+  font-size: medium;
+  margin: 0;
+}
+
+.row > .message {
+  margin: 0.5rem 0 0;
+}
+.row summary, .search-config summary {
+  border: 1px solid transparent;
+}
+.row summary:hover,
+.search-config summary:hover {
+  /* border: 1px solid gray; */
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+.row summary,
+.search-config summary {
+  padding: 0.25rem;
+}
+
+
+.row > details:not([open]) summary:hover,
+.search-config:not([open]) summary:hover {
+  border-color: gray;
+}
+.row > details[open] > summary,
+.search-config[open] > summary {
+  border-bottom-color: gray;
+}
+
+.row details,
+.search-config {
+  border: 1px solid transparent;
+}
+.row details[open],
+.search-config[open] {
+  border-color: black;
+}
+
+.details-header {
+  font-weight: bold;
+  margin-right: 0.25rem;
+}
+.details-content {
+  font-family: monospace;
+}
+.details-content-stacktrace > div {
+  padding-left: 2rem;
+}
+
+.filter {
+  margin: 1rem 0;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  /* left: 0;
+  right: 0; */
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.rowList {
+  display: flex;
+  flex-direction: column;
+}
+
+.rpc-highlight-loc {
+  font-size: 0.75rem;
+  color: gray;
+}
+
+.rpc-highlight-str {
+  display: inline;
+}
+.rpc-arr-holder {
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 1px solid black;
+}
+.intermediate-step {
+  border: 1px solid black;
+  padding: 0.125rem;
+}
+/* .intermediate-step > p {
+  margin: 0;
+} */
+
+.subject, .prop, .value, .intermediates, .intrinsic {
+  margin: 0;
+}
+
+.value {
+  overflow: scroll;
+}
+.syntax-type { color: #267F99; }
+.syntax-attr { color: #795E26; }
+.syntax-string { color: #A31515; }
+.syntax-int { color: #098658; }
