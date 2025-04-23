@@ -1,4 +1,4 @@
-# Tragdor - Testing RAG dependency ordering & remediation
+# Tragdor - Testing RAG Dependency Orders & Remediation
 
 This repository contains "Tragdor", a tool which performs dynamic dependency-based purity checking on compilers and static analyzers build using attribute grammars.
 
